@@ -10,7 +10,8 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function PublicLandingPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const [activeCatalogSession, setActiveCatalogSession] = useState<{slug: string} | null>(null);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('');
@@ -54,6 +55,16 @@ export default function PublicLandingPage() {
         console.error('Failed to load public catalog:', err);
       })
       .finally(() => setLoading(false));
+
+    // Check for active catalog sessions in sessionStorage
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key?.startsWith('catalog_auth_')) {
+        const slug = key.replace('catalog_auth_', '');
+        setActiveCatalogSession({ slug });
+        break;
+      }
+    }
   }, []);
 
   const openProductModal = (product: any) => {
@@ -87,12 +98,20 @@ export default function PublicLandingPage() {
 
   return (
     <>
-      <div className="absolute top-0 right-0 p-6 z-50">
+      <div className="absolute top-0 right-0 p-6 z-50 flex gap-3">
+         {activeCatalogSession && (
+           <Link 
+              href={`/catalog/${activeCatalogSession.slug}`} 
+              className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase transition-all shadow-lg hover:scale-105 active:scale-95"
+           >
+              Resume Order
+           </Link>
+         )}
          <Link 
             href={token ? "/admin" : "/admin/login"} 
             className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase transition-all shadow-lg hover:scale-105 active:scale-95"
          >
-            {token ? "Dashboard" : "Admin Login"}
+            {token ? (user?.name || "Dashboard") : "Admin Login"}
          </Link>
       </div>
 
@@ -218,7 +237,6 @@ export default function PublicLandingPage() {
                   ) : (
                     <img src={imgSrc} alt={p.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                   )}
-                  
                   {p.is_poa && (
                      <div className="absolute top-6 right-6 bg-gray-900 text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl">
                        POA

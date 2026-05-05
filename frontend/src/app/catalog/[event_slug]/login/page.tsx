@@ -80,6 +80,12 @@ export default function CatalogLogin({ params }: { params: Promise<{ event_slug:
               {loading ? 'Verifying...' : 'Access Catalog'}
             </button>
           </form>
+
+          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+            <a href="/" className="text-xs font-bold text-gray-400 hover:text-teal-600 transition-colors uppercase tracking-widest">
+              ← Return to Storefront
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/Toast';
 import { apiFetch } from '@/lib/api';
 import { useAutosave } from '@/hooks/useAutosave';
 import PageHero from '@/components/admin/PageHero';
@@ -44,6 +45,7 @@ interface ProductFormProps {
 
 export default function ProductForm({ productId, fromCatalogId, onSuccess, isModal }: ProductFormProps) {
   const { token } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -581,7 +583,16 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
                           onupdatefiles={setFiles}
                           allowMultiple={true}
                           maxFiles={5}
-                          onprocessfile={() => { fetchImages(formData.code); setFiles([]); setSelectedColorId(null); }}
+                          onprocessfile={(error, file) => { 
+                            if (error) {
+                              toast.error(`Failed to transmit ${file.filename}`);
+                            } else {
+                              toast.success(`${file.filename} successfully added to asset library`);
+                              fetchImages(formData.code); 
+                              setFiles([]); 
+                              setSelectedColorId(null); 
+                            }
+                          }}
                           server={{
                             process: {
                               url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
