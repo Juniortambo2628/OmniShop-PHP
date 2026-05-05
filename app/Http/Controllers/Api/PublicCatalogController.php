@@ -158,33 +158,48 @@ class PublicCatalogController extends Controller
 
     private function getMergedProducts()
     {
-        $catalogProducts = config('catalog.products');
-        $adminProducts = Product::where('is_active', 1)->get()->toArray();
+        $catalogProducts = config('catalog.products', []);
+        $adminProducts = Product::where('is_active', 1)->get();
 
-        $catIndex = [];
-        foreach ($catalogProducts as $cat) {
-            foreach ($cat['items'] as $item) {
-                $catIndex[$item['id']] = $cat['name'];
+        $allProducts = [];
+
+        // 1. Process Config Products
+        if (is_array($catalogProducts)) {
+            foreach ($catalogProducts as $cat) {
+                if (!isset($cat['items']) || !is_array($cat['items'])) continue;
+                
+                foreach ($cat['items'] as $item) {
+                    $dbProd = Product::where('prod_id', $item['id'])->first();
+                    
+                    $allProducts[] = [
+                        'id' => $item['id'],
+                        'name' => $item['name'] ?? 'Unnamed Product',
+                        'price' => $item['price'] ?? 0,
+                        'image' => $item['image'] ?? null,
+                        'category' => $cat['name'] ?? 'General',
+                        'stock_limit' => $dbProd ? $dbProd->stock_limit : null,
+                        'stock_used' => $dbProd ? $dbProd->stock_used : 0,
+                        'colors' => $item['colors'] ?? [],
+                    ];
+                }
             }
         }
 
-        $allProducts = [];
-        foreach ($catalogProducts as $cat) {
-            foreach ($cat['items'] as $item) {
-                // Find in DB for stock limits
-                $dbProd = Product::where('prod_id', $item['id'])->first();
-                
-                $allProducts[] = [
-                    'id' => $item['id'],
-                    'name' => $item['name'],
-                    'price' => $item['price'],
-                    'image' => $item['image'],
-                    'category' => $cat['name'],
-                    'stock_limit' => $dbProd ? $dbProd->stock_limit : null,
-                    'stock_used' => $dbProd ? $dbProd->stock_used : 0,
-                    'colors' => $item['colors'] ?? [],
-                ];
-            }
+        // 2. Add Admin-only products (not in config)
+        $existingIds = collect($allProducts)->pluck('id')->toArray();
+        foreach ($adminProducts as $prod) {
+            if (in_array($prod->prod_id, $existingIds)) continue;
+
+            $allProducts[] = [
+                'id' => $prod->prod_id,
+                'name' => $prod->name,
+                'price' => $prod->price,
+                'image' => $prod->image,
+                'category' => 'Custom',
+                'stock_limit' => $prod->stock_limit,
+                'stock_used' => $prod->stock_used,
+                'colors' => [],
+            ];
         }
 
         return $allProducts;
