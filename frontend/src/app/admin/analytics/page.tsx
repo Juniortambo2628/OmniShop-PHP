@@ -58,11 +58,13 @@ export default function AnalyticsPage() {
 
   // Simple SVG Area Chart logic
   const maxRevenue = Math.max(...data.revenue_over_time.map(d => Number(d.total)), 1);
-  const chartPoints = data.revenue_over_time.map((d, i) => {
-    const x = (i / (data.revenue_over_time.length - 1)) * 100;
-    const y = 100 - (Number(d.total) / maxRevenue) * 80;
-    return `${x},${y}`;
-  }).join(' ');
+  const chartPoints = data.revenue_over_time.length > 1 
+    ? data.revenue_over_time.map((d, i) => {
+        const x = (i / (data.revenue_over_time.length - 1)) * 100;
+        const y = 100 - (Number(d.total) / maxRevenue) * 80;
+        return `${x},${y}`;
+      }).join(' ')
+    : "0,100 100,100"; // Fallback line if only 1 point exists
 
   return (
     <>
