@@ -192,6 +192,7 @@ class PublicCatalogController extends Controller
                     
                     $allProducts[] = [
                         'id' => $item['id'],
+                        'code' => $item['id'], // Added for compatibility
                         'name' => $item['name'] ?? 'Unnamed Product',
                         'price' => $item['price'] ?? 0,
                         'image' => $item['image'] ?? null,
@@ -211,6 +212,7 @@ class PublicCatalogController extends Controller
 
             $allProducts[] = [
                 'id' => $prod->prod_id,
+                'code' => $prod->prod_id, // Added for compatibility
                 'name' => $prod->name,
                 'price' => $prod->price,
                 'image' => $prod->image,
