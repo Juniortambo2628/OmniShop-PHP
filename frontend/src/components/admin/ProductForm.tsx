@@ -7,7 +7,7 @@ import { apiFetch } from '@/lib/api';
 import { useAutosave } from '@/hooks/useAutosave';
 import PageHero from '@/components/admin/PageHero';
 import Link from 'next/link';
-import { Plus, Trash2, Upload, Image as ImageIcon, Check, X as CloseIcon } from 'lucide-react';
+import { Plus, Trash2, Upload, Image as ImageIcon, Check, X as CloseIcon, Package } from 'lucide-react';
 
 // FilePond Imports
 import { FilePond, registerPlugin } from 'react-filepond';
