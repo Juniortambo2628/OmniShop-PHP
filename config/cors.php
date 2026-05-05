@@ -22,6 +22,8 @@ return [
     'allowed_origins' => array_filter([
         'http://localhost:3000',
         'http://127.0.0.1:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3001',
         env('FRONTEND_URL'),
         env('FRONTEND_URL') ? str_replace('https://', 'https://www.', env('FRONTEND_URL')) : null,
     ]),

@@ -178,18 +178,16 @@ export default function StockPage() {
         {loading ? (
           <TableSkeleton rows={10} />
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wider">
-                Showing {filteredItems.length} Products
-              </h2>
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden max-w-full">
+            <div className="px-5 py-3 bg-teal-600 text-white font-semibold text-sm flex items-center justify-between">
+              <span>Showing {filteredItems.length} Products</span>
             </div>
             
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50/50 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    <th className="px-6 py-4 w-10">
+                  <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wider">
+                    <th className="px-5 py-3 w-10">
                       <input 
                         type="checkbox" 
                         checked={selectedIds.length > 0 && selectedIds.length === filteredItems.length}
@@ -197,10 +195,10 @@ export default function StockPage() {
                         className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                     </th>
-                    <th className="px-6 py-4">Product</th>
-                    <th className="px-6 py-4 text-center">Status</th>
-                    <th className="px-6 py-4 text-center">Used</th>
-                    <th className="px-6 py-4">Limit</th>
+                    <th className="px-5 py-3">Product</th>
+                    <th className="px-5 py-3 text-center">Status</th>
+                    <th className="px-5 py-3 text-center">Used</th>
+                    <th className="px-5 py-3">Limit</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -211,9 +209,9 @@ export default function StockPage() {
                     return (
                       <tr 
                         key={item.prod_id} 
-                        className={`hover:bg-teal-50/30 transition-colors group ${isSelected ? 'bg-teal-50/50' : ''}`}
+                        className={`border-b border-gray-50 hover:bg-teal-50/40 transition-colors group ${isSelected ? 'bg-teal-50/60' : ''}`}
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-5 py-3">
                           <input 
                             type="checkbox" 
                             checked={isSelected}
@@ -221,7 +219,7 @@ export default function StockPage() {
                             className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 group-hover:bg-teal-100 group-hover:text-teal-600 transition-colors">
                               <Package size={14} />
@@ -232,7 +230,7 @@ export default function StockPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-5 py-3 text-center">
                           {item.stock_limit === null ? (
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Unlimited</span>
                           ) : isLowStock ? (
@@ -245,12 +243,12 @@ export default function StockPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-5 py-3 text-center">
                           <span className={`inline-block px-2 py-1 rounded-lg font-mono font-bold text-xs ${item.stock_used > 0 ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'}`}>
                             {item.stock_used}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-5 py-3">
                           <div className="flex items-center gap-2">
                             <input 
                               type="number"

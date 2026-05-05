@@ -37,7 +37,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-60 bg-[#0d2e2e] flex flex-col z-40">
+    <aside className="fixed left-0 top-0 h-screen w-60 bg-[#0d2e2e] flex flex-col z-50">
       {/* Logo */}
       <div className="px-5 py-6 border-b border-white/5 text-center">
         <div className="inline-flex items-center justify-center w-10 h-10 bg-white text-teal-600 font-extrabold text-xl rounded-lg mx-auto">
@@ -65,10 +65,10 @@ export default function Sidebar() {
               className={`flex items-center gap-3 px-5 py-3 text-sm transition-all duration-300 ${
                 isActive
                   ? 'bg-teal-600 text-white font-black shadow-2xl shadow-teal-500/20'
-                  : 'text-teal-400/40 hover:bg-white/5 hover:text-white'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white'
               }`}
             >
-              <item.icon size={18} className={isActive ? 'text-white' : 'text-gray-500'} />
+              <item.icon size={18} className={isActive ? 'text-white' : 'text-white/70'} />
               {item.label}
             </Link>
           );

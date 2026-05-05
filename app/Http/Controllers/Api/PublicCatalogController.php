@@ -39,12 +39,16 @@ class PublicCatalogController extends Controller
 
     public function data(Request $request, $event_slug)
     {
-        $event = config("events.$event_slug");
-        if (!$event) {
-            return response()->json(['message' => 'Event not found.'], 404);
+        if ($event_slug === 'public') {
+            $event = ['name' => 'Storefront Catalog', 'short_name' => 'Catalog'];
+        } else {
+            $event = config("events.$event_slug");
+            if (!$event) {
+                return response()->json(['message' => 'Event not found.'], 404);
+            }
         }
 
-        $categories = config('catalog.categories');
+        $categories = collect(config('catalog.categories'))->pluck('name', 'id')->toArray();
         $products = $this->getMergedProducts();
         $images = $this->getProductImages();
 

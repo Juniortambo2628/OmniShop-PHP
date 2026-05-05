@@ -8,7 +8,7 @@ interface ProductDetailsModalProps {
   product: any;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (product: any) => void;
+  onAddToCart?: (product: any) => void;
   selectedColorId: string | null;
   onColorSelect: (colorId: string) => void;
   imgSrc: string;
@@ -142,13 +142,15 @@ export default function ProductDetailsModal({
                 {product.is_poa ? 'POA' : `$${product.price.toFixed(2)}`}
               </span>
             </div>
-            <button
-              onClick={() => onAddToCart(product)}
-              className="flex-1 bg-[#0d2e2e] hover:bg-teal-600 text-white py-5 rounded-3xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-[#0d2e2e]/20 hover:shadow-teal-600/30 flex items-center justify-center gap-3 active:scale-95"
-            >
-              <ShoppingBag size={20} />
-              Add to Collection
-            </button>
+            {onAddToCart && (
+              <button
+                onClick={() => onAddToCart(product)}
+                className="flex-1 bg-[#0d2e2e] hover:bg-teal-600 text-white py-5 rounded-3xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-[#0d2e2e]/20 hover:shadow-teal-600/30 flex items-center justify-center gap-3 active:scale-95"
+              >
+                <ShoppingBag size={20} />
+                Add to Collection
+              </button>
+            )}
           </div>
         </div>
       </div>

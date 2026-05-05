@@ -40,6 +40,8 @@ Route::post('/feedback', [FeedbackController::class, 'store']);
 
 // Protected admin routes
 Route::middleware('auth:sanctum')->group(function () {
+    \Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
     // Auth
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/user/profile', [AuthController::class, 'updateProfile']);
@@ -90,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Categories (read-only from config)
     Route::get('/categories', function () {
-        return response()->json(config('catalog.categories'));
+        return response()->json(collect(config('catalog.categories'))->pluck('name', 'id')->toArray());
     });
 
     Route::get('/events', function () {

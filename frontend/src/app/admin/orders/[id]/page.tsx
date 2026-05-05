@@ -248,7 +248,7 @@ export default function OrderDetailPage() {
                                     <img 
                                        src={`/static/images/products/${(item.product_code || '').toUpperCase()}.jpg`}
                                        alt={item.product_name}
-                                       onError={(e) => (e.target as HTMLImageElement).src = '/static/images/placeholder.jpg'}
+                                       onError={(e) => (e.target as HTMLImageElement).src = '/static/images/products/placeholder.jpg'}
                                        className="max-w-full max-h-full object-contain mix-blend-multiply"
                                     />
                                  </div>

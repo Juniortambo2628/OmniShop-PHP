@@ -81,7 +81,7 @@ export default function CatalogIndex({ params }: { params: Promise<{ event_slug:
     }
 
     // Image logic
-    let imgSrc = '/static/images/placeholder.jpg';
+    let imgSrc = '/static/images/products/placeholder.jpg';
     const imgData = data.images[product.code.toUpperCase()];
     if (imgData) {
       if (product.colors?.length > 0 && selectedColorId && imgData[selectedColorId]) {
@@ -225,7 +225,7 @@ export default function CatalogIndex({ params }: { params: Promise<{ event_slug:
             const selectedColorId = selectedColors[prodKey];
             
             // Image logic port from legacy
-            let imgSrc = '/static/images/placeholder.jpg';
+            let imgSrc = '/static/images/products/placeholder.jpg';
             const imgData = images[p.code.toUpperCase()];
             if (imgData) {
               if (hasColors && selectedColorId && imgData[selectedColorId]) {
@@ -401,7 +401,7 @@ export default function CatalogIndex({ params }: { params: Promise<{ event_slug:
                  return `/static/images/products/${Object.values(imgData)[0]}`;
               }
             }
-            return '/static/images/placeholder.jpg';
+            return '/static/images/products/placeholder.jpg';
           })()}
         />
       )}
