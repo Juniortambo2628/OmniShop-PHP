@@ -2,19 +2,13 @@
 deployment:
   tasks:
     - export DEPLOYPATH_CORE=/home2/omnispac/omnishop-core/
-    - export DEPLOYPATH_PUBLIC=/home/omnispac/api-omni-shop.omnispace3d.com/
 
     - /bin/mkdir -p $DEPLOYPATH_CORE
-    - /bin/mkdir -p $DEPLOYPATH_PUBLIC
 
     # Deploy backend code to omnishop-core
     - /bin/cp -R * $DEPLOYPATH_CORE
     - /bin/cp -f .env.production $DEPLOYPATH_CORE/.env
 
-    # Copy public assets to web root
-    - /bin/cp -R public/* $DEPLOYPATH_PUBLIC/
-    - /bin/cp public/.htaccess $DEPLOYPATH_PUBLIC/
-
-    # NOTE: The storage symlink must exist on the server:
-    # ln -s /home2/omnispac/omnishop-core/storage/app/public /home/omnispac/api-omni-shop.omnispace3d.com/storage
-    # Composer install and Artisan cache commands can be run manually via terminal after deployment.
+    # NOTE:
+    # 1. Point your api-omni-shop.omnispace3d.com Document Root to /home2/omnispac/omnishop-core/public
+    # 2. Run 'php artisan storage:link' in the omnishop-core directory on the server.
