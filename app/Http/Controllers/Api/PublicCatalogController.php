@@ -50,8 +50,21 @@ class PublicCatalogController extends Controller
     public function getData($event_slug)
     {
         $event = Event::where('slug', $event_slug)->first();
+        
         if (!$event) {
-            return response()->json(['message' => 'Event not found.'], 404);
+            if ($event_slug === 'public') {
+                $event = (object)[
+                    'name' => 'OmniShop Public Storefront',
+                    'slug' => 'public',
+                    'logo' => '/static/images/logo.png',
+                    'dates' => 'Year Round',
+                    'venue' => 'Online',
+                    'contact_email' => 'info@omnispace3d.com',
+                    'deadlines' => [],
+                ];
+            } else {
+                return response()->json(['message' => 'Event not found.'], 404);
+            }
         }
 
         $settings = Setting::pluck('value', 'key')->toArray();

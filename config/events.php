@@ -58,4 +58,16 @@ return [
         ],
         'order_prefix'  => 'OMN-SEA2026',
     ],
+    'public' => [
+        'name'          => 'OmniShop Public Storefront',
+        'short_name'    => 'Public Store',
+        'slug'          => 'public',
+        'dates'         => 'Year Round',
+        'venue'         => 'Online',
+        'logo'          => '/static/images/logo.png',
+        'contact_email' => 'info@omnispace3d.com',
+        'catalog_password_default' => 'public',
+        'deadlines'     => [],
+        'order_prefix'  => 'OMN-PUB',
+    ],
 ];
