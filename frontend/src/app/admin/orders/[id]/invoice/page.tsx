@@ -200,7 +200,7 @@ export default function InvoicePage() {
             <div className="w-full sm:w-72 space-y-4">
                <div className="flex justify-between items-center px-4">
                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Subtotal</span>
-                 <span className="font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+                 <span className="font-bold text-gray-900">${Number(subtotal).toFixed(2)}</span>
                </div>
                <div className="flex justify-between items-center px-4">
                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">VAT (0%)</span>
@@ -208,7 +208,7 @@ export default function InvoicePage() {
                </div>
                <div className="bg-teal-600 p-6 rounded-2xl text-white shadow-xl shadow-teal-600/20 flex justify-between items-center">
                  <span className="text-xs font-black uppercase tracking-widest opacity-80">Total Amount</span>
-                 <span className="text-3xl font-black">${total.toFixed(2)}</span>
+                 <span className="text-3xl font-black">${Number(total).toFixed(2)}</span>
                </div>
             </div>
           </div>

@@ -297,7 +297,7 @@ export default function CatalogIndex({ params }: { params: Promise<{ event_slug:
                     <div className="flex flex-col">
                       <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Price</span>
                       <span className="text-xl font-black text-[#0d2e2e]">
-                        {p.is_poa ? 'POA' : `$${p.price.toFixed(2)}`}
+                        {p.is_poa ? 'POA' : `$${Number(p.price).toFixed(2)}`}
                       </span>
                     </div>
 

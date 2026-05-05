@@ -102,7 +102,7 @@ export default function CartDrawer({ eventSlug }: { eventSlug: string }) {
                         ><Plus size={14} /></button>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-black text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="text-lg font-black text-gray-900">${(Number(item.price) * item.quantity).toFixed(2)}</p>
                       </div>
                     </div>
                   </div>

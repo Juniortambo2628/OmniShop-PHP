@@ -76,7 +76,7 @@ export default function FeedbackAdminPage() {
             <div className="w-px h-6 bg-white/10" />
             <div className="flex items-center gap-2">
                <Star size={14} className="text-yellow-400 fill-yellow-400" />
-               <span className="text-xs font-black">{avgRating.toFixed(1)}</span>
+               <span className="text-xs font-black">{Number(avgRating).toFixed(1)}</span>
                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Avg Rating</span>
             </div>
 

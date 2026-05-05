@@ -383,7 +383,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ event_slug:
                               <span className="text-xs font-black">{item.quantity}</span>
                               <button onClick={() => updateQuantity(item.cart_id, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors text-gray-400">+</button>
                            </div>
-                           <p className="font-black text-base tracking-tight">${(item.price * item.quantity).toFixed(2)}</p>
+                           <p className="font-black text-base tracking-tight">${(Number(item.price) * item.quantity).toFixed(2)}</p>
                         </div>
                       </div>
                     </motion.div>
@@ -429,7 +429,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ event_slug:
                           </div>
                        </div>
                        <div className="flex items-center gap-4">
-                          <p className="text-sm font-black text-teal-400">-${appliedPromo.discount_amount.toFixed(2)}</p>
+                          <p className="text-sm font-black text-teal-400">-${Number(appliedPromo.discount_amount).toFixed(2)}</p>
                           <button onClick={removePromo} className="text-white/20 hover:text-white transition-colors">
                              <X size={16} />
                           </button>
@@ -442,12 +442,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ event_slug:
                   <div className="space-y-4">
                      <div className="flex items-center justify-between text-gray-400">
                         <span className="text-xs font-black uppercase tracking-widest">Subtotal</span>
-                        <span className="font-bold">${subtotal.toFixed(2)}</span>
+                        <span className="font-bold">${Number(subtotal).toFixed(2)}</span>
                      </div>
                      {appliedPromo && (
                         <div className="flex items-center justify-between text-teal-400">
                            <span className="text-xs font-black uppercase tracking-widest">Discount</span>
-                           <span className="font-bold">-${appliedPromo.discount_amount.toFixed(2)}</span>
+                           <span className="font-bold">-${Number(appliedPromo.discount_amount).toFixed(2)}</span>
                         </div>
                      )}
                      <div className="flex items-center justify-between text-gray-400">

@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
               <Zap size={80} />
             </div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Avg. Order Value</p>
-            <h3 className="text-3xl font-black text-gray-900">${avgOrderValue.toFixed(2)}</h3>
+            <h3 className="text-3xl font-black text-gray-900">${Number(avgOrderValue).toFixed(2)}</h3>
             <div className="mt-4 flex items-center gap-2 text-blue-600 font-bold text-xs bg-blue-50 w-fit px-2 py-1 rounded-lg">
               <ArrowUpRight size={14} /> Premium shift
             </div>

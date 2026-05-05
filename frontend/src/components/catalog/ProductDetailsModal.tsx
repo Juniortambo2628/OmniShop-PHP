@@ -139,7 +139,7 @@ export default function ProductDetailsModal({
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-left">Total Rate</span>
               <span className="text-4xl font-black text-[#0d2e2e] tracking-tighter">
-                {product.is_poa ? 'POA' : `$${product.price.toFixed(2)}`}
+                {product.is_poa ? 'POA' : `$${Number(product.price).toFixed(2)}`}
               </span>
             </div>
             {onAddToCart && (
