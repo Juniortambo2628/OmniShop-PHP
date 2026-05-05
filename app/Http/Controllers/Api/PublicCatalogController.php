@@ -152,7 +152,7 @@ class PublicCatalogController extends Controller
             \App\Services\NotificationService::notifyNewOrder($order);
 
             // Check if emails are enabled and send confirmation
-            $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
+            $settings = Setting::pluck('value', 'key')->toArray();
             if (($settings['enable_order_emails'] ?? '0') === '1') {
                 try {
                     \Illuminate\Support\Facades\Mail::to($order->email)
