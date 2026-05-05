@@ -1,0 +1,106 @@
+OmniShop PHP — Library Setup Instructions
+==========================================
+
+Before OmniShop can send invoices and emails, you need to download two small
+PHP libraries and place them in the correct folders. No command line needed —
+just download, unzip, and copy the files via FTP or cPanel File Manager.
+
+=======================================================================
+1. FPDF (PDF Invoice Generation)
+=======================================================================
+
+Download from: http://www.fpdf.org/
+Click "Download" → fpdf182.zip (or current version)
+
+After unzipping, you will have a folder containing fpdf.php and a font/ folder.
+
+PLACE THESE FILES AT:
+  omnishop/lib/fpdf/fpdf.php
+  omnishop/lib/fpdf/font/   (the entire font folder)
+
+So your lib/fpdf/ folder should look like:
+  lib/
+  └── fpdf/
+      ├── fpdf.php         ← main library file
+      └── font/
+          ├── helvetica.php
+          ├── courier.php
+          └── (other font files...)
+
+=======================================================================
+2. PHPMailer (Email Sending via Gmail SMTP)
+=======================================================================
+
+Download from: https://github.com/PHPMailer/PHPMailer/releases
+Click the latest release (v6.x) → Source code (zip)
+
+After unzipping, go into the src/ folder. You need ONLY these 3 files:
+  - Exception.php
+  - PHPMailer.php
+  - SMTP.php
+
+PLACE THESE FILES AT:
+  omnishop/lib/phpmailer/Exception.php
+  omnishop/lib/phpmailer/PHPMailer.php
+  omnishop/lib/phpmailer/SMTP.php
+
+So your lib/phpmailer/ folder should look like:
+  lib/
+  └── phpmailer/
+      ├── Exception.php
+      ├── PHPMailer.php
+      └── SMTP.php
+
+NOTE: You do NOT need to install Composer or run any commands.
+Just copy those 3 files from the PHPMailer src/ folder.
+
+=======================================================================
+3. GMAIL APP PASSWORD (for email sending)
+=======================================================================
+
+OmniShop sends emails via Gmail SMTP using an App Password.
+Your normal Gmail password will NOT work — you need an App Password.
+
+Steps:
+  1. Go to https://myaccount.google.com/security
+  2. Make sure 2-Step Verification is ENABLED
+  3. Go to https://myaccount.google.com/apppasswords
+  4. Select "Mail" and "Other (custom name)" → type "OmniShop"
+  5. Google will show you a 16-character password (e.g. abcd efgh ijkl mnop)
+  6. Copy it (spaces are OK — paste as-is)
+  7. Enter it in the OmniShop Admin → Settings → SMTP Password field
+
+=======================================================================
+4. AFTER UPLOADING THE LIBRARIES
+=======================================================================
+
+  1. Upload all OmniShop files to your Bluehost subdomain folder via FTP
+     (e.g. public_html/omnishop.omnispace3d.com/ or the subdomain's root)
+  2. Visit: https://omnishop.omnispace3d.com/setup.php
+     This creates the database tables and default admin user.
+     DEFAULT CREDENTIALS: admin@omnispace3d.com / OmniAdmin2026!
+  3. LOG IN and immediately change the admin password!
+  4. Go to Admin → Settings → enter your SMTP details + Gmail App Password
+  5. Set catalog passwords for each event
+  6. DELETE setup.php from your server (security!)
+
+=======================================================================
+5. FINAL FOLDER STRUCTURE CHECK
+=======================================================================
+
+Your complete lib/ folder should look like this before going live:
+
+  lib/
+  ├── fpdf/
+  │   ├── fpdf.php
+  │   └── font/
+  │       └── (font files)
+  ├── phpmailer/
+  │   ├── Exception.php
+  │   ├── PHPMailer.php
+  │   └── SMTP.php
+  └── SETUP_INSTRUCTIONS.txt  (this file — safe to delete after setup)
+
+=======================================================================
+Questions? WhatsApp: +254 731 001 723 | www.omnispace3d.com
+=======================================================================

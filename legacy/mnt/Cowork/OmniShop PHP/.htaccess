@@ -1,0 +1,27 @@
+Options -Indexes
+RewriteEngine On
+
+# ── Static files: serve directly, do NOT route through PHP ───────────────────
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^$ - [L]
+
+# ── Route everything else through index.php ───────────────────────────────────
+RewriteRule ^ index.php [L]
+
+# ── Security: block direct access to sensitive files ─────────────────────────
+<FilesMatch "\.(sql|log|env|ini|md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(config\.php|setup\.php)$">
+    # Allow setup.php access temporarily; lock down after first run if desired
+</FilesMatch>
+
+# ── PHP settings ──────────────────────────────────────────────────────────────
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 60

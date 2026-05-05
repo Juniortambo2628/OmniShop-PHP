@@ -1,0 +1,107 @@
+================================================================================
+OmniShop PHP — Bluehost Upload Checklist (April 2026 Update)
+For Alex
+================================================================================
+
+BEFORE YOU START:
+  1. Log in to Bluehost cPanel → File Manager
+  2. Navigate to: public_html/shop/   (or wherever shop.omnispace3d.com is rooted)
+  3. Keep a backup of the old versions before overwriting (right-click → Compress)
+  4. Upload all files below, preserving the folder structure exactly
+
+================================================================================
+CRITICAL — UPLOAD THESE FIRST (fixes the login bug and route errors)
+================================================================================
+
+These files fix the admin login being broken and admin pages not loading:
+
+  index.php                             ← CRITICAL: fixes all admin page routing
+  includes/auth.php                     ← CRITICAL: fixes admin login (was always failing)
+  includes/admin_layout.php             ← fixes display name showing blank
+
+After uploading index.php + auth.php, test that you can log in at:
+  https://shop.omnispace3d.com/admin
+
+================================================================================
+SECTION A — Admin panel improvements
+================================================================================
+
+  pages/admin/users.php                 ← fixes display name + email in users list
+  pages/admin/products.php              ← NEW: shows all products (not just overrides)
+  pages/admin/product_form.php          ← NEW: user-friendly add/edit product form
+  pages/admin/images.php                ← NEW: product dropdown for image upload
+
+  api/reset_product_override.php        ← NEW file (create it if it doesn't exist)
+  api/hide_catalog_product.php          ← NEW file (create it if it doesn't exist)
+
+================================================================================
+SECTION B — Configuration
+================================================================================
+
+  config.php                            ← updated SITE_URL to shop.omnispace3d.com
+  includes/events.php                   ← updated GITEX name + dates (May 19-21, 2026)
+  setup.php                             ← updated with email settings + correct URL
+
+================================================================================
+SECTION C — Add Eric as Super Admin (database, not files)
+================================================================================
+
+  See: ADD_ERIC_SQL.txt (in this folder)
+  Run the SQL in cPanel → phpMyAdmin → OmniShop database → SQL tab
+
+================================================================================
+AFTER UPLOADING — TEST CHECKLIST
+================================================================================
+
+□ Log in at https://shop.omnispace3d.com/admin  (admin@omnispace3d.com)
+□ Admin → Users — can you see Susan and any other users listed?
+□ Admin → Products — do you see the full product list (not just overrides)?
+□ Admin → Images — does the product dropdown appear?
+□ Admin → Settings — paste the Gmail App Password into smtp_password field
+□ Place a test order at https://shop.omnispace3d.com/solarandstorage
+  and confirm the confirmation email arrives at orders@omnispace3d.com
+
+================================================================================
+FOLDER STRUCTURE REMINDER
+================================================================================
+
+The PHP files must be uploaded preserving this structure:
+
+  shop/
+  ├── index.php
+  ├── config.php
+  ├── setup.php
+  ├── .htaccess
+  ├── includes/
+  │   ├── auth.php
+  │   ├── admin_layout.php
+  │   ├── events.php
+  │   └── (other includes...)
+  ├── pages/
+  │   └── admin/
+  │       ├── products.php
+  │       ├── product_form.php
+  │       ├── images.php
+  │       ├── users.php
+  │       └── (other admin pages...)
+  └── api/
+      ├── reset_product_override.php  ← NEW (create this)
+      └── (other api files...)
+
+================================================================================
+GMAIL APP PASSWORD (for email to work)
+================================================================================
+
+The setup.php now pre-configures the email address (orders@omnispace3d.com)
+but the App Password must be set manually after setup:
+
+1. Log in to Google at: myaccount.google.com with orders@omnispace3d.com
+2. Security → 2-Step Verification (turn on if not already on)
+3. Go to: myaccount.google.com/apppasswords
+4. App: Mail, Device: Windows Computer → Generate
+5. Copy the 16-character password shown
+6. In OmniShop Admin → Settings, find "smtp_password" and paste it in
+7. Click Save Settings
+8. Send a test order to confirm emails are working
+
+================================================================================

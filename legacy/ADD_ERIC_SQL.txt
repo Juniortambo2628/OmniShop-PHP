@@ -1,0 +1,46 @@
+================================================================================
+ADD ERIC KIMINYA AS SUPER ADMIN — Instructions for Alex
+================================================================================
+
+1. Log in to Bluehost cPanel
+2. Go to phpMyAdmin (under the Databases section)
+3. Select the OmniShop database from the left panel
+4. Click the "SQL" tab at the top
+5. Paste the SQL below into the box and click "Go"
+6. Tell Eric his temporary login details:
+      URL:      https://shop.omnispace3d.com/admin
+      Email:    erickiminya@gmail.com
+      Password: EricAdmin2026!
+7. Tell Eric to change his password immediately via Admin → Users
+
+================================================================================
+PASTE THIS SQL INTO PHPMYADMIN:
+================================================================================
+
+INSERT INTO admin_users (username, display_name, password_hash, role, is_active, created_at)
+VALUES (
+  'erickiminya@gmail.com',
+  'Eric Kiminya',
+  '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+  'super_admin',
+  1,
+  NOW()
+)
+ON DUPLICATE KEY UPDATE
+  display_name = 'Eric Kiminya',
+  role         = 'super_admin',
+  is_active    = 1;
+
+================================================================================
+NOTE: The password hash above sets the temporary password to: EricAdmin2026!
+Eric must change it after first login via Admin → Users → Change Password.
+
+If the above gives an error, try this simpler version instead:
+================================================================================
+
+INSERT IGNORE INTO admin_users (username, display_name, password_hash, role, is_active, created_at)
+VALUES ('erickiminya@gmail.com', 'Eric Kiminya',
+        '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        'super_admin', 1, NOW());
+
+================================================================================

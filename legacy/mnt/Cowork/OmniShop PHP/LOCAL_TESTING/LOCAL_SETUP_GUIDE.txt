@@ -1,0 +1,115 @@
+================================================================================
+OmniShop — Local Testing Setup Guide
+For Alex & Eric
+================================================================================
+
+This lets you test OmniShop on your own computer before uploading changes
+to the live Bluehost site.
+
+================================================================================
+STEP 1 — Install XAMPP (one time only)
+================================================================================
+
+1. Go to: https://www.apachefriends.org/download.html
+2. Download the Windows version (the big orange "Download" button)
+3. Run the installer — accept all the default options
+4. When asked about Windows Firewall, click "Allow Access"
+5. XAMPP installs to C:\xampp\ by default — leave it there
+
+================================================================================
+STEP 2 — Set up the local database (one time only)
+================================================================================
+
+1. Open XAMPP Control Panel (from Start Menu or C:\xampp\xampp-control.exe)
+2. Click "Start" next to Apache and MySQL
+3. Once both show green, click "Admin" next to MySQL
+   (This opens phpMyAdmin in your browser)
+4. In phpMyAdmin:
+   a. Click "New" in the left sidebar
+   b. Database name: omnishop_local  → click Create
+5. Click on omnishop_local in the left panel
+6. Click the "SQL" tab
+7. Paste this and click Go:
+
+   CREATE DATABASE IF NOT EXISTS omnishop_local;
+
+================================================================================
+STEP 3 — Copy OmniShop files into XAMPP (one time only)
+================================================================================
+
+1. Open File Explorer
+2. Go to: C:\xampp\htdocs\
+3. Create a new folder called: omnishop
+4. Copy all the contents of the "OmniShop PHP" folder into C:\xampp\htdocs\omnishop\
+   (so that index.php is at C:\xampp\htdocs\omnishop\index.php)
+
+================================================================================
+STEP 4 — Update config.php for local use (one time only)
+================================================================================
+
+Open C:\xampp\htdocs\omnishop\config.php in Notepad and change:
+
+  define('DB_NAME', 'omnishop_local');
+  define('DB_USER', 'root');
+  define('DB_PASS', '');
+  define('SITE_URL', 'http://localhost/omnishop');
+
+IMPORTANT: Keep a separate copy of the live config.php (with Bluehost details)
+so you can put it back when uploading to the live site.
+
+================================================================================
+STEP 5 — Run setup to create local database tables (one time only)
+================================================================================
+
+With Apache and MySQL running, go to:
+  http://localhost/omnishop/setup.php
+
+You should see a green success screen.
+Default login: admin@omnispace3d.com / OmniAdmin2026!
+
+================================================================================
+EVERY TIME YOU WANT TO TEST
+================================================================================
+
+Double-click:  LOCAL_TESTING\START_OMNISHOP.bat
+
+This starts Apache and MySQL and opens the admin panel automatically.
+
+URLs:
+  Admin:               http://localhost/omnishop/admin
+  Solar & Storage:     http://localhost/omnishop/solarandstorage
+  GITEX Kenya:         http://localhost/omnishop/gitex
+
+================================================================================
+UPLOADING CHANGES TO THE LIVE SITE
+================================================================================
+
+After testing locally:
+1. Make sure your changes work correctly on localhost
+2. Put the LIVE config.php back (with Bluehost DB details + SITE_URL = https://shop.omnispace3d.com)
+3. Upload only the changed files to Bluehost via FTP
+4. Test on the live site
+
+IMPORTANT: Never upload the local config.php to the live site!
+Keep two versions: config.php (local) and config_live.php (Bluehost) and
+rename as needed.
+
+================================================================================
+GETTING IMAGES FROM THE LOCAL PYTHON VERSION
+================================================================================
+
+The Python version of the site stores images at:
+  [Python omnishop folder]\static\images\products\
+
+These files are already named correctly (e.g. SOF01.jpg, CH001.jpg etc.)
+
+To move them to the PHP version:
+1. Find the images folder in the Python version
+2. Copy ALL the .jpg/.png files
+3. Paste them into: C:\xampp\htdocs\omnishop\static\images\products\
+4. They will immediately appear in the PHP catalog
+
+To upload them to the live site: use Admin → Images → Batch Upload
+(select all the correctly-named files at once)
+
+================================================================================
