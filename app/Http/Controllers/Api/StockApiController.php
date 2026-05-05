@@ -10,26 +10,30 @@ class StockApiController extends Controller
 {
     public function index(Request $request)
     {
-        $catalogProducts = config('catalog.products');
+        $catalogProducts = config('catalog.products', []);
         $dbProducts = Product::all()->keyBy('prod_id');
 
         $filterQ = $request->input('q');
         $stockData = [];
+        
         foreach ($catalogProducts as $cp) {
+            $prodId = $cp['id'];
+            
             if ($filterQ) {
                 $q = strtolower($filterQ);
                 if (!str_contains(strtolower($cp['code']), $q) && !str_contains(strtolower($cp['name']), $q)) {
                     continue;
                 }
             }
-            $dbProd = $dbProducts->get($cp['id']);
+
+            $dbProd = $dbProducts->get($prodId);
             $stockData[] = [
-                'prod_id'      => $cp['id'],
+                'prod_id'      => $prodId,
                 'code'         => $cp['code'],
                 'name'         => $cp['name'],
                 'category_id'  => $cp['category_id'],
-                'stock_limit'  => $dbProd->stock_limit ?? null,
-                'stock_used'   => $dbProd->stock_used ?? 0,
+                'stock_limit'  => $dbProd ? $dbProd->stock_limit : null,
+                'stock_used'   => $dbProd ? $dbProd->stock_used : 0,
             ];
         }
 
@@ -51,20 +55,26 @@ class StockApiController extends Controller
     {
         $request->validate(['stock_limit' => 'nullable|integer|min:0']);
 
-        $product = Product::firstOrCreate(
+        // Find in catalog to get correct defaults
+        $catalog = collect(config('catalog.products'))->firstWhere('id', $productId);
+
+        $product = Product::updateOrCreate(
             ['prod_id' => $productId],
             [
-                'code'         => $productId,
-                'name'         => $productId,
-                'category_id'  => '',
-                'price'        => 0,
-                'price_display'=> '$0',
+                'code'         => $catalog['code'] ?? $productId,
+                'name'         => $catalog['name'] ?? $productId,
+                'category_id'  => $catalog['category_id'] ?? '',
+                'price'        => $catalog['price'] ?? 0,
+                'price_display'=> $catalog['price_display'] ?? '$0',
                 'is_override'  => true,
+                'stock_limit'  => $request->input('stock_limit'),
             ]
         );
 
-        $product->stock_limit = $request->input('stock_limit');
-        $product->save();
+        if ($request->has('stock_limit')) {
+            $product->stock_limit = $request->input('stock_limit');
+            $product->save();
+        }
 
         return response()->json(['message' => 'Stock updated.', 'product' => $product]);
     }

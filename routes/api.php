@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\PublicCatalogController;
 use App\Http\Controllers\Api\Admin\StorefrontCmsController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\Api\InvoiceApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/{id}/send-email', [OrderApiController::class, 'sendEmail']);
     Route::post('/orders/bulk-delete', [OrderApiController::class, 'bulkDelete']);
     Route::post('/orders/bulk-status', [OrderApiController::class, 'bulkUpdateStatus']);
+    Route::get('/orders/{id}/invoice/pdf', [InvoiceApiController::class, 'streamPdf']);
+    Route::get('/orders/{id}/invoice/download', [InvoiceApiController::class, 'downloadPdf']);
 
     // Payments
     Route::apiResource('/payments', PaymentController::class)->except(['update']);

@@ -8,19 +8,23 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public Order $order;
+    public string $templateType;
     protected string $templateSubject;
     protected string $templateBody;
 
     public function __construct(Order $order, string $templateType = 'confirmation')
     {
         $this->order = $order;
+        $this->templateType = $templateType;
 
         // Load the email template from settings
         $subjectKey = $templateType === 'invoice'
@@ -52,6 +56,18 @@ class OrderConfirmationMail extends Mailable
         return new Content(
             htmlString: $this->buildHtmlBody(),
         );
+    }
+
+    public function attachments(): array
+    {
+        if ($this->templateType === 'invoice') {
+            $pdf = Pdf::loadView('pdf.invoice', ['order' => $this->order]);
+            return [
+                Attachment::fromData(fn () => $pdf->output(), "Invoice-{$this->order->order_id}.pdf")
+                    ->withMime('application/pdf'),
+            ];
+        }
+        return [];
     }
 
     protected function buildHtmlBody(): string

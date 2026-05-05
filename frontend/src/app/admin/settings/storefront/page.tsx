@@ -36,10 +36,27 @@ export default function StorefrontCmsPage() {
   }, [token]);
 
   const updateValue = (key: string, value: string) => {
-    setSettings(prev => prev.map(s => s.key === key ? { ...s, value } : s));
+    setSettings(prev => {
+      const exists = prev.some(s => s.key === key);
+      if (exists) {
+        return prev.map(s => s.key === key ? { ...s, value } : s);
+      } else {
+        // Fallback for missing settings - determine type based on key or default to string
+        let type = 'string';
+        if (key.includes('enabled')) type = 'boolean';
+        if (key.includes('rates')) type = 'json';
+        if (key.includes('color')) type = 'color';
+        return [...prev, { key, value, type }];
+      }
+    });
   };
 
-  const getSetting = (key: string) => settings.find(s => s.key === key);
+  const getSetting = (key: string) => {
+    const s = settings.find(s => s.key === key);
+    if (s) return s;
+    // Return a default object if setting is missing to prevent UI crashes
+    return { key, value: '', type: 'string' };
+  };
 
   const handleSave = async () => {
     if (!token) return;
