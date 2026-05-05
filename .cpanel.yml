@@ -1,25 +1,20 @@
 ---
 deployment:
   tasks:
-    # 1. Install PHP dependencies (no dev packages for staging)
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; cd $DEPLOYPATH && /usr/local/bin/php -d memory_limit=512M /opt/cpanel/composer/bin/composer install --no-dev --no-interaction --optimize-autoloader
+    - export DEPLOYPATH_CORE=/home/zhpebukm/omnishop-core/
+    - export DEPLOYPATH_PUBLIC=/home/zhpebukm/omnishop.okjtech.co.ke/api/
 
-    # 2. Copy staging environment config to .env
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; /bin/cp -f $DEPLOYPATH/.env.staging $DEPLOYPATH/.env
+    - /bin/mkdir -p $DEPLOYPATH_CORE
+    - /bin/mkdir -p $DEPLOYPATH_PUBLIC
 
-    # 3. Deploy public/ files to the API document root
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; /bin/cp -rf $DEPLOYPATH/public/* /home/zhpebukm/omnishop.okjtech.co.ke/api/
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; /bin/cp -f $DEPLOYPATH/public/.htaccess /home/zhpebukm/omnishop.okjtech.co.ke/api/
+    # Deploy backend code to omnishop-core
+    - /bin/cp -R * $DEPLOYPATH_CORE
+    - /bin/cp -f .env.staging $DEPLOYPATH_CORE/.env
 
-    # 4. Laravel optimizations and migrations
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; cd $DEPLOYPATH && /usr/local/bin/php artisan migrate --force
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; cd $DEPLOYPATH && /usr/local/bin/php artisan config:cache
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; cd $DEPLOYPATH && /usr/local/bin/php artisan route:cache
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; cd $DEPLOYPATH && /usr/local/bin/php artisan view:cache
+    # Copy public assets to web root
+    - /bin/cp -R public/* $DEPLOYPATH_PUBLIC/
+    - /bin/cp public/.htaccess $DEPLOYPATH_PUBLIC/
 
-    # 5. Create storage symlink (storage/app/public → api/storage)
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; ln -sfn $DEPLOYPATH/storage/app/public /home/zhpebukm/omnishop.okjtech.co.ke/api/storage
-
-    # 6. Set correct permissions
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; chmod -R 775 $DEPLOYPATH/storage
-    - export DEPLOYPATH=/home/zhpebukm/omnishop-core; chmod -R 775 $DEPLOYPATH/bootstrap/cache
+    # NOTE: The storage symlink must exist on the server:
+    # ln -s /home/zhpebukm/omnishop-core/storage/app/public /home/zhpebukm/omnishop.okjtech.co.ke/api/storage
+    # Composer install and Artisan cache commands can be run manually via terminal after deployment.
