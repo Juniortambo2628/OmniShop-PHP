@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* OmniShop custom theme overrides */
+@layer base {
+  :root {
+    --color-teal-primary: #0A9696;
+    --color-teal-light: #19AFAC;
+    --color-teal-pale: #D6F0EF;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
