@@ -71,6 +71,7 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
   });
 
   const [newColorName, setNewColorName] = useState('');
+  const [activeTab, setActiveTab] = useState<'general' | 'variants' | 'media'>('general');
 
   const { isSaving: isAutosaving, lastSaved, clearDraft } = useAutosave({
     type: 'product',
@@ -268,6 +269,29 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
               )}
             </div>
           )}
+
+          {/* Tab Navigation */}
+          <div className="flex bg-gray-50 border-b border-gray-100 p-2 gap-2">
+            {[
+              { id: 'general', label: 'General Info', icon: Package },
+              { id: 'variants', label: 'Color Variants', icon: Check },
+              { id: 'media', label: 'Media & Assets', icon: ImageIcon },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === tab.id 
+                  ? 'bg-white text-teal-600 shadow-sm border border-gray-100' 
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <tab.icon size={14} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
           
           <div className="p-8">
             {error && <div className="mb-8 p-4 bg-red-50 text-red-600 text-xs font-bold rounded-2xl border border-red-100 flex items-center gap-3">
@@ -275,148 +299,171 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
               {error}
             </div>}
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="min-h-[450px]">
               
-              {/* MAIN FORM COLUMN */}
-              <div className="lg:col-span-8 space-y-10">
-                
-                {/* Section: Basic Identity */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-1 h-4 bg-teal-600 rounded-full" />
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Core Identity</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="group">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Internal ID</label>
-                      <input 
-                        type="text" 
-                        name="prod_id" 
-                        value={formData.prod_id} 
-                        onChange={handleChange}
-                        readOnly={isEdit || formData.is_override}
-                        className={`w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all ${(isEdit || formData.is_override) ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        required
-                      />
-                    </div>
-                    <div className="group">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Catalog Code</label>
-                      <input 
-                        type="text" 
-                        name="code" 
-                        value={formData.code} 
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Product Name</label>
-                    <input 
-                      type="text" 
-                      name="name" 
-                      value={formData.name} 
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Section: Categorization & Specs */}
-                <div className="space-y-6 pt-6 border-t border-gray-50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-1 h-4 bg-teal-600 rounded-full" />
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Classification</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="group">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Category</label>
-                      <select 
-                        name="category_id" 
-                        value={formData.category_id} 
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
-                        required
-                      >
-                        <option value="">Select Category</option>
-                        {Object.entries(categories).map(([id, name]) => (
-                          <option key={id} value={id}>{name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="group">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Specifications</label>
-                      <input 
-                        type="text" 
-                        name="dimensions" 
-                        value={formData.dimensions} 
-                        onChange={handleChange}
-                        placeholder="e.g. 120 x 80 x 75 cm"
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section: Pricing */}
-                <div className="space-y-6 pt-6 border-t border-gray-50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-1 h-4 bg-teal-600 rounded-full" />
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Financials</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="group">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Numeric Price</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+              {/* Tab Content: General */}
+              {activeTab === 'general' && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-1 h-4 bg-teal-600 rounded-full" />
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Core Identity</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Internal ID</label>
+                          <input 
+                            type="text" 
+                            name="prod_id" 
+                            value={formData.prod_id} 
+                            onChange={handleChange}
+                            readOnly={isEdit || formData.is_override}
+                            className={`w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all ${(isEdit || formData.is_override) ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            required
+                          />
+                        </div>
+                        <div className="group">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Catalog Code</label>
+                          <input 
+                            type="text" 
+                            name="code" 
+                            value={formData.code} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="group">
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Product Name</label>
                         <input 
-                          type="number" 
-                          step="0.01"
-                          name="price" 
-                          value={formData.price} 
+                          type="text" 
+                          name="name" 
+                          value={formData.name} 
                           onChange={handleChange}
-                          className="w-full pl-8 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
+                          className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
                           required
                         />
                       </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Category</label>
+                          <select 
+                            name="category_id" 
+                            value={formData.category_id} 
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
+                            required
+                          >
+                            <option value="">Select Category</option>
+                            {Object.entries(categories).map(([id, name]) => (
+                              <option key={id} value={id}>{name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="group">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Specifications</label>
+                          <input 
+                            type="text" 
+                            name="dimensions" 
+                            value={formData.dimensions} 
+                            onChange={handleChange}
+                            placeholder="e.g. 120 x 80 x 75 cm"
+                            className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="group">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Display String</label>
-                      <input 
-                        type="text" 
-                        name="price_display" 
-                        value={formData.price_display} 
-                        onChange={handleChange}
-                        placeholder="e.g. $1,250.00"
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
-                        required
-                      />
+
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-1 h-4 bg-teal-600 rounded-full" />
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Financials & Visibility</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Numeric Price</label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                            <input 
+                              type="number" 
+                              step="0.01"
+                              name="price" 
+                              value={formData.price} 
+                              onChange={handleChange}
+                              className="w-full pl-8 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="group">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 group-focus-within:text-teal-600 transition-colors">Display String</label>
+                          <input 
+                            type="text" 
+                            name="price_display" 
+                            value={formData.price_display} 
+                            onChange={handleChange}
+                            placeholder="e.g. $1,250.00"
+                            className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 focus:bg-white transition-all"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="p-6 bg-gray-50 rounded-3xl border-2 border-white shadow-inner space-y-4">
+                        <label className="flex items-center justify-between cursor-pointer group">
+                          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover:text-teal-600 transition-colors">Visible in Storefront</span>
+                          <div className="relative">
+                            <input 
+                              type="checkbox" 
+                              name="is_active" 
+                              checked={formData.is_active} 
+                              onChange={handleChange}
+                              className="sr-only"
+                            />
+                            <div className={`w-10 h-6 rounded-full transition-colors ${formData.is_active ? 'bg-teal-600' : 'bg-gray-200'}`} />
+                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_active ? 'translate-x-4' : ''}`} />
+                          </div>
+                        </label>
+                        <label className="flex items-center justify-between cursor-pointer group">
+                          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover:text-teal-600 transition-colors">Price on Application</span>
+                          <div className="relative">
+                            <input 
+                              type="checkbox" 
+                              name="is_poa" 
+                              checked={formData.is_poa} 
+                              onChange={handleChange}
+                              className="sr-only"
+                            />
+                            <div className={`w-10 h-6 rounded-full transition-colors ${formData.is_poa ? 'bg-amber-500' : 'bg-gray-200'}`} />
+                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_poa ? 'translate-x-4' : ''}`} />
+                          </div>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Section: Variants & Logic */}
-                <div className="space-y-6 pt-6 border-t border-gray-50">
-                  <div className="flex items-center justify-between mb-2">
+              {/* Tab Content: Variants */}
+              {activeTab === 'variants' && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl mx-auto">
+                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="w-1 h-4 bg-teal-600 rounded-full" />
                       <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Color Variants</h3>
                     </div>
-                    <span className="text-[9px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded tracking-tighter">COLOR-SPECIFIC IMAGE SUPPORT ENABLED</span>
+                    <span className="text-[9px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded tracking-tighter uppercase tracking-widest">Image specific mapping enabled</span>
                   </div>
                   
-                  <div className="space-y-4">
-                    {/* Color List */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {formData.colors.map((color) => {
                         const colorImg = existingImages.find(img => img.name.includes(`-${color.id}`));
                         return (
-                          <div key={color.id} className="flex items-center justify-between p-3 bg-white border-2 border-gray-100 rounded-2xl group hover:border-teal-200 transition-all shadow-sm">
+                          <div key={color.id} className="flex items-center justify-between p-4 bg-white border-2 border-gray-100 rounded-2xl group hover:border-teal-200 transition-all shadow-sm">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100">
+                              <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100">
                                 {colorImg ? (
                                   <img src={colorImg.url} className="w-full h-full object-cover" />
                                 ) : (
@@ -431,8 +478,8 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
                             <div className="flex items-center gap-2">
                               <button 
                                 type="button"
-                                onClick={() => setSelectedColorId(color.id)}
-                                className={`p-2 rounded-lg transition-all ${selectedColorId === color.id ? 'bg-teal-600 text-white' : 'bg-teal-50 text-teal-600 hover:bg-teal-100'}`}
+                                onClick={() => { setSelectedColorId(color.id); setActiveTab('media'); }}
+                                className="p-2 bg-teal-50 text-teal-600 hover:bg-teal-100 rounded-lg transition-all"
                                 title="Set as upload target"
                               >
                                 <Upload size={14} />
@@ -449,147 +496,120 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
                         );
                       })}
                     </div>
-
-                    {/* Add Color Input */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 p-2 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
                       <input 
                         type="text"
                         value={newColorName}
                         onChange={(e) => setNewColorName(e.target.value)}
-                        placeholder="Add new color name..."
+                        placeholder="Add new variant name..."
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                        className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-teal-500 transition-all"
+                        className="flex-1 px-6 py-3 bg-white border-2 border-transparent rounded-[1.5rem] text-sm font-bold focus:outline-none focus:border-teal-500 transition-all"
                       />
                       <button 
                         type="button"
                         onClick={addColor}
-                        className="px-6 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all"
+                        className="px-8 py-3 bg-gray-900 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest hover:bg-black transition-all"
                       >
                         Add
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* SIDEBAR COLUMN (IMAGES) */}
-              <div className="lg:col-span-4 space-y-8">
-                 
-                 {/* Existing Assets Gallery */}
-                 <div className="bg-gray-50/50 rounded-3xl border border-gray-100 p-8">
+              {/* Tab Content: Media */}
+              {activeTab === 'media' && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="lg:col-span-7">
                     <div className="flex items-center justify-between mb-6">
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Asset Library</label>
+                      <div className="flex items-center gap-2">
+                        <span className="w-1 h-4 bg-teal-600 rounded-full" />
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Asset Library</h3>
+                      </div>
                       <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded">{existingImages.length} Files</span>
                     </div>
 
                     {existingImages.length === 0 ? (
-                      <div className="py-12 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-gray-300">
-                        <ImageIcon size={32} strokeWidth={1.5} />
-                        <p className="text-[10px] font-bold uppercase mt-4">No assets found</p>
+                      <div className="py-24 border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center text-gray-300 bg-gray-50/50">
+                        <ImageIcon size={48} strokeWidth={1} />
+                        <p className="text-[11px] font-black uppercase mt-4 tracking-widest">No assets found</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
                         {existingImages.map((img) => (
-                          <div key={img.name} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md group hover:ring-2 hover:ring-teal-500 transition-all">
+                          <div key={img.name} className="relative aspect-[4/5] rounded-3xl overflow-hidden border-2 border-white shadow-xl shadow-gray-200/50 group hover:ring-2 hover:ring-teal-500 transition-all">
                              <img src={img.url} className="w-full h-full object-cover" />
                              <button 
                                type="button"
                                onClick={() => deleteImage(img.name)}
-                               className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                               className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                              >
-                               <Trash2 size={12} />
+                               <Trash2 size={14} />
                              </button>
-                             <div className="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm p-1.5 text-[8px] font-black text-white uppercase truncate text-center">
+                             <div className="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-md p-3 text-[9px] font-black text-white uppercase tracking-wider text-center">
                                {img.name.replace(formData.code.toUpperCase(), '').replace('.jpg', '') || 'Main'}
                              </div>
                           </div>
                         ))}
                       </div>
                     )}
-                 </div>
+                  </div>
 
-                 {/* Upload Engine */}
-                 <div className="bg-teal-900 rounded-3xl border border-teal-800 p-8 shadow-2xl shadow-teal-900/40 relative overflow-hidden">
-                   <div className="absolute top-0 right-0 p-8 opacity-10">
-                     <Upload size={80} className="text-white" />
-                   </div>
-                   
-                   <label className="block text-[10px] font-black text-teal-400 uppercase tracking-[0.2em] mb-4">Transmission Engine</label>
-                   
-                   <div className="mb-4">
-                     {selectedColorId ? (
-                       <div className="flex items-center justify-between bg-teal-800/50 rounded-xl px-4 py-2 border border-teal-700">
-                         <span className="text-[10px] font-black text-white uppercase tracking-widest">Target: {formData.colors.find(c => c.id === selectedColorId)?.name}</span>
-                         <button onClick={() => setSelectedColorId(null)} className="text-teal-400 hover:text-white"><CloseIcon size={14}/></button>
+                  <div className="lg:col-span-5 space-y-6">
+                    <div className="bg-teal-900 rounded-[2.5rem] border border-teal-800 p-8 shadow-2xl shadow-teal-900/40 relative overflow-hidden">
+                       <div className="absolute top-0 right-0 p-8 opacity-10">
+                         <Upload size={120} className="text-white" />
                        </div>
-                     ) : (
-                       <div className="px-4 py-2 rounded-xl border border-teal-800 text-[10px] font-bold text-teal-500 italic">Target: Main Product Image</div>
-                     )}
-                   </div>
-
-                   <FilePond
-                      files={files}
-                      onupdatefiles={setFiles}
-                      allowMultiple={true}
-                      maxFiles={5}
-                      onprocessfile={() => {
-                         fetchImages(formData.code);
-                         setFiles([]);
-                         setSelectedColorId(null);
-                      }}
-                      server={{
-                        process: {
-                          url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
-                          method: 'POST',
-                          headers: {
-                            'Authorization': `Bearer ${token}`
-                          },
-                          ondata: (fd) => {
-                            fd.append('product_code', formData.code);
-                            if (selectedColorId) fd.append('color_id', selectedColorId);
-                            return fd;
-                          }
-                        }
-                      }}
-                      name="image"
-                      labelIdle='Drop images or <span class="filepond--label-action">Browse</span>'
-                      acceptedFileTypes={['image/*']}
-                      className="filepond-dark"
-                   />
-                 </div>
-
-                 {/* Visibility Toggles */}
-                 <div className="p-6 bg-white rounded-3xl border-2 border-gray-100 space-y-4">
-                    <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover:text-teal-600 transition-colors">Visible in Storefront</span>
-                      <div className="relative">
-                        <input 
-                          type="checkbox" 
-                          name="is_active" 
-                          checked={formData.is_active} 
-                          onChange={handleChange}
-                          className="sr-only"
-                        />
-                        <div className={`w-10 h-6 rounded-full transition-colors ${formData.is_active ? 'bg-teal-600' : 'bg-gray-200'}`} />
-                        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_active ? 'translate-x-4' : ''}`} />
-                      </div>
-                    </label>
-                    <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover:text-teal-600 transition-colors">Price on Application</span>
-                      <div className="relative">
-                        <input 
-                          type="checkbox" 
-                          name="is_poa" 
-                          checked={formData.is_poa} 
-                          onChange={handleChange}
-                          className="sr-only"
-                        />
-                        <div className={`w-10 h-6 rounded-full transition-colors ${formData.is_poa ? 'bg-amber-500' : 'bg-gray-200'}`} />
-                        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_poa ? 'translate-x-4' : ''}`} />
-                      </div>
-                    </label>
-                 </div>
-              </div>
+                       <label className="block text-[10px] font-black text-teal-400 uppercase tracking-[0.2em] mb-4">Transmission Engine</label>
+                       <div className="mb-6">
+                         {selectedColorId ? (
+                           <div className="flex items-center justify-between bg-teal-800/50 rounded-2xl px-5 py-3 border border-teal-700">
+                             <div className="flex flex-col">
+                               <span className="text-[9px] font-bold text-teal-400 uppercase tracking-widest">Active Target</span>
+                               <span className="text-xs font-black text-white uppercase tracking-widest">{formData.colors.find(c => c.id === selectedColorId)?.name}</span>
+                             </div>
+                             <button onClick={() => setSelectedColorId(null)} className="p-2 bg-teal-700 hover:bg-teal-600 rounded-lg text-teal-400 hover:text-white transition-colors">
+                               <CloseIcon size={14}/>
+                             </button>
+                           </div>
+                         ) : (
+                           <div className="px-5 py-3 rounded-2xl border border-dashed border-teal-800 text-[10px] font-black text-teal-500 uppercase tracking-widest">Target: Main Product Image</div>
+                         )}
+                       </div>
+                       <FilePond
+                          files={files}
+                          onupdatefiles={setFiles}
+                          allowMultiple={true}
+                          maxFiles={5}
+                          onprocessfile={() => { fetchImages(formData.code); setFiles([]); setSelectedColorId(null); }}
+                          server={{
+                            process: {
+                              url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
+                              method: 'POST',
+                              headers: { 'Authorization': `Bearer ${token}` },
+                              ondata: (fd) => {
+                                fd.append('product_code', formData.code);
+                                if (selectedColorId) fd.append('color_id', selectedColorId);
+                                return fd;
+                              }
+                            }
+                          }}
+                          name="image"
+                          labelIdle='Drop images or <span class="filepond--label-action">Browse</span>'
+                          acceptedFileTypes={['image/*']}
+                          className="filepond-dark"
+                       />
+                    </div>
+                    <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                       <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Upload Rules</p>
+                       <ul className="space-y-1">
+                         <li className="text-[9px] font-bold text-gray-500 flex items-center gap-2"><Check size={10}/> Maximum 5 files per transmission</li>
+                         <li className="text-[9px] font-bold text-gray-500 flex items-center gap-2"><Check size={10}/> JPG/PNG format only</li>
+                       </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
 
             </div>
           </div>
