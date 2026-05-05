@@ -4,75 +4,68 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\Setting;
-use App\Models\PromoCode;
-use Illuminate\Support\Facades\File;
+use App\Models\Event;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class PublicCatalogController extends Controller
 {
     public function login(Request $request, $event_slug)
     {
-        $event = config("events.$event_slug");
+        $validator = Validator::make($request->all(), [
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Password is required.'], 422);
+        }
+
+        $event = Event::where('slug', $event_slug)->first();
         if (!$event) {
             return response()->json(['message' => 'Event not found.'], 404);
         }
 
-        $password = $request->input('password');
-        
-        $correct = Setting::where('key', "catalog_password_{$event_slug}")->value('value') 
-                   ?? $event['catalog_password_default'];
-        $demo = Setting::where('key', "catalog_demo_password_{$event_slug}")->value('value');
-
-        if ($password === $correct || ($demo && $password === $demo)) {
-            // In a real scenario, use a signed token or Sanctum. 
-            // For simplicity in this migration, we'll return a simple auth token flag.
-            $token = base64_encode(json_encode(['event' => $event_slug, 'auth' => true, 'time' => time()]));
-            return response()->json(['token' => $token]);
+        if (Hash::check($request->password, $event->password)) {
+            // Generate a simple token (we use a custom one for public catalog)
+            $token = base64_encode(json_encode([
+                'event' => $event_slug,
+                'auth' => true,
+                'time' => time()
+            ]));
+            
+            return response()->json([
+                'message' => 'Login successful.',
+                'token' => $token
+            ]);
         }
 
-        return response()->json(['message' => 'Incorrect password.'], 401);
+        return response()->json(['message' => 'Invalid password.'], 401);
     }
 
-    public function data(Request $request, $event_slug)
+    public function getData($event_slug)
     {
-        if ($event_slug === 'public') {
-            $event = ['name' => 'Storefront Catalog', 'short_name' => 'Catalog'];
-        } else {
-            $event = config("events.$event_slug");
-            if (!$event) {
-                return response()->json(['message' => 'Event not found.'], 404);
-            }
+        $event = Event::where('slug', $event_slug)->first();
+        if (!$event) {
+            return response()->json(['message' => 'Event not found.'], 404);
         }
 
-        $categories = collect(config('catalog.categories'))->pluck('name', 'id')->toArray();
+        $settings = Setting::pluck('value', 'key')->toArray();
         $products = $this->getMergedProducts();
-        $images = $this->getProductImages();
-
-        // Group products by category
-        $grouped = [];
-        foreach ($products as $p) {
-            $grouped[$p['category_id']][] = $p;
-        }
 
         return response()->json([
             'event' => $event,
-            'categories' => $categories,
-            'grouped' => $grouped,
-            'images' => $images,
+            'products' => $products,
+            'settings' => $settings,
         ]);
     }
 
     public function checkout(Request $request, $event_slug)
     {
-        $event = config("events.$event_slug");
-        if (!$event) {
-            return response()->json(['message' => 'Event not found.'], 404);
-        }
-
         $data = $request->validate([
             'company_name' => 'nullable|string',
             'contact_name' => 'required|string',
@@ -80,30 +73,24 @@ class PublicCatalogController extends Controller
             'phone' => 'required|string',
             'booth_number' => 'nullable|string',
             'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'total_amount' => 'required|numeric',
             'promo_code' => 'nullable|string',
             'discount_amount' => 'nullable|numeric',
             'delivery_cost' => 'nullable|numeric',
-            'total_amount' => 'required|numeric',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|string',
-            'items.*.name' => 'required|string',
-            'items.*.price' => 'required|numeric',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.color' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
         try {
-            // Generate unique Order ID
+            // Generate Order ID (e.g., GITEX-0001)
             $seq = DB::table('order_sequence')->where('event_slug', $event_slug)->value('last_number') ?? 0;
             $seq++;
             DB::table('order_sequence')->updateOrInsert(['event_slug' => $event_slug], ['last_number' => $seq]);
-            $orderIdStr = $event_slug . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+            
+            $prefix = strtoupper($event_slug);
+            $orderIdStr = $prefix . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-            $subtotal = 0;
-            foreach ($data['items'] as $item) {
-                $subtotal += $item['price'] * $item['quantity'];
-            }
+            $subtotal = collect($data['items'])->sum(fn($item) => $item['price'] * $item['quantity']);
 
             $order = Order::create([
                 'order_id' => $orderIdStr,
@@ -122,24 +109,16 @@ class PublicCatalogController extends Controller
                 'status' => 'Pending',
             ]);
 
-            // Increment promo usage if provided
-            if (!empty($data['promo_code'])) {
-                $promo = PromoCode::where('code', $data['promo_code'])->first();
-                if ($promo) {
-                    $promo->increment('times_used');
-                }
-            }
-
             foreach ($data['items'] as $item) {
-                $subtotal = $item['price'] * $item['quantity'];
                 OrderItem::create([
                     'order_id' => $order->order_id,
                     'product_code' => $item['product_id'],
-                    'product_name' => $item['name'],
-                    'unit_price' => $item['price'],
-                    'quantity' => $item['quantity'],
+                    'product_name' => $item['name'] ?? 'Product',
                     'color_name' => $item['color'] ?? null,
-                    'total_price' => $subtotal,
+                    'category' => $item['category'] ?? null,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['price'],
+                    'total_price' => $item['price'] * $item['quantity'],
                 ]);
 
                 // Update stock if tracked
@@ -183,45 +162,31 @@ class PublicCatalogController extends Controller
         $adminProducts = Product::where('is_active', 1)->get()->toArray();
 
         $catIndex = [];
-        foreach ($catalogProducts as $i => $p) {
-            $catIndex[$p['id']] = $i;
-        }
-
-        foreach ($adminProducts as $ap) {
-            if (!empty($ap['is_override']) && isset($ap['prod_id']) && isset($catIndex[$ap['prod_id']])) {
-                $idx = $catIndex[$ap['prod_id']];
-                $catalogProducts[$idx] = array_merge($catalogProducts[$idx], $ap);
-            } else {
-                $catalogProducts[] = $ap;
+        foreach ($catalogProducts as $cat) {
+            foreach ($cat['items'] as $item) {
+                $catIndex[$item['id']] = $cat['name'];
             }
         }
 
-        return $catalogProducts;
-    }
-
-    private function getProductImages()
-    {
-        $imgDir = public_path('static/images/products');
-        $images = [];
-        if (!File::isDirectory($imgDir)) return $images;
-
-        $files = File::files($imgDir);
-        foreach ($files as $file) {
-            $fname = $file->getFilename();
-            $ext = strtolower($file->getExtension());
-            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) continue;
-            
-            $basename = $file->getFilenameWithoutExtension();
-            $stem = strtoupper($basename);
-            
-            if (preg_match('/^(.+)-(\d{1,2})$/', $basename, $m)) {
-                $code = strtoupper($m[1]);
-                $colorId = str_pad($m[2], 2, '0', STR_PAD_LEFT);
-                $images[$code][$colorId] = $fname;
-            } else {
-                $images[$stem]['default'] = $fname;
+        $allProducts = [];
+        foreach ($catalogProducts as $cat) {
+            foreach ($cat['items'] as $item) {
+                // Find in DB for stock limits
+                $dbProd = Product::where('prod_id', $item['id'])->first();
+                
+                $allProducts[] = [
+                    'id' => $item['id'],
+                    'name' => $item['name'],
+                    'price' => $item['price'],
+                    'image' => $item['image'],
+                    'category' => $cat['name'],
+                    'stock_limit' => $dbProd ? $dbProd->stock_limit : null,
+                    'stock_used' => $dbProd ? $dbProd->stock_used : 0,
+                    'colors' => $item['colors'] ?? [],
+                ];
             }
         }
-        return $images;
+
+        return $allProducts;
     }
 }
