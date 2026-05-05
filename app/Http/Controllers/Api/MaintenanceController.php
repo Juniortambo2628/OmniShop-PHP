@@ -44,6 +44,15 @@ class MaintenanceController extends Controller
                     Artisan::call('optimize');
                     $output = Artisan::output();
                     break;
+                case 'logs':
+                    $logPath = storage_path('logs/laravel.log');
+                    if (file_exists($logPath)) {
+                        $lines = explode("\n", file_get_contents($logPath));
+                        $output = implode("\n", array_slice($lines, -100));
+                    } else {
+                        $output = "Log file not found.";
+                    }
+                    break;
                 default:
                     return response()->json(['message' => 'Invalid action.'], 400);
             }
