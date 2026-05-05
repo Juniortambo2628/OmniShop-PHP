@@ -7,9 +7,14 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\Admin\SettingController;
 
+use App\Http\Controllers\Api\MaintenanceController;
+
 Route::get('/', function () {
     return redirect('/solarandstorage');
 });
+
+// Maintenance Route (Duplicated in web for browser access)
+Route::get('/maintenance/run', [MaintenanceController::class, 'run']);
 
 // API (For Order Submission)
 Route::post('/api/submit-order', [\App\Http\Controllers\Api\OrderController::class, 'submit'])->name('api.order.submit');
