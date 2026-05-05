@@ -70,10 +70,16 @@ class PublicCatalogController extends Controller
         $settings = Setting::pluck('value', 'key')->toArray();
         $products = $this->getMergedProducts();
 
+        $grouped = collect($products)->groupBy('category');
+        $categories = $grouped->keys()->toArray();
+
         return response()->json([
             'event' => $event,
             'products' => $products,
+            'grouped' => $grouped,
+            'categories' => $categories,
             'settings' => $settings,
+            'images' => [], // Placeholder for gallery images
         ]);
     }
 
