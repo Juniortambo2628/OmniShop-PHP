@@ -60,7 +60,7 @@ export default function StockPage() {
             per_page: perPage.toString(),
             q: search
         });
-        const res = await apiFetch<any>(`/stock?${params.toString()}`, { token });
+        const res = await apiFetch<any>(`/stock?${params.toString()}`, { token: token || undefined });
         setItems(res.data);
         setLastPage(res.last_page);
         setTotal(res.total);
@@ -100,7 +100,7 @@ export default function StockPage() {
         Object.entries(pendingChanges).map(([id, limit]) => 
           apiFetch(`/stock/${id}`, {
             method: 'PUT',
-            token,
+            token: token || undefined,
             body: JSON.stringify({ stock_limit: limit })
           })
         )
@@ -142,7 +142,7 @@ export default function StockPage() {
     try {
       await apiFetch('/stock/bulk-reset', {
         method: 'POST',
-        token,
+        token: token || undefined,
         body: JSON.stringify({ ids: selectedIds })
       });
       fetchData();
