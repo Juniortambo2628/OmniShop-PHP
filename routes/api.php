@@ -71,10 +71,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Products
     Route::get('/products', [ProductApiController::class, 'index']);
     Route::get('/products/{id}', [ProductApiController::class, 'show']);
+    Route::get('/products/catalog/{catalogId}', [ProductApiController::class, 'showCatalog']);
     Route::post('/products', [ProductApiController::class, 'store']);
     Route::put('/products/{id}', [ProductApiController::class, 'update']);
     Route::post('/products/bulk-delete', [ProductApiController::class, 'bulkDelete']);
     Route::post('/products/bulk-status', [ProductApiController::class, 'bulkUpdateStatus']);
+    Route::get('/products/code/{code}/images', [ProductImageController::class, 'listByCode']);
     Route::post('/products/images', [ProductImageController::class, 'upload']);
     Route::delete('/products/images', [ProductImageController::class, 'delete']);
 

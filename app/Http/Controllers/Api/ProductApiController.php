@@ -21,27 +21,12 @@ class ProductApiController extends Controller
         $dbAdditions = $dbProducts->where('is_override', 0);
 
         $displayProducts = [];
-        $imagePath = public_path('static/images/products');
         
+        // Phase 1: Build light-weight list for filtering
         foreach ($catalogProducts as $cp) {
             $override = $dbByProdId->get($cp['id']);
             $code = $override->code ?? $cp['code'] ?? '';
             
-            // Detect image
-            $img = 'placeholder.jpg';
-            if ($code) {
-                $files = File::glob($imagePath . '/' . strtoupper($code) . '*.jpg');
-                if ($files && count($files) > 0) {
-                    $img = basename($files[0]);
-                } else {
-                    // Try lowercase
-                    $files = File::glob($imagePath . '/' . strtolower($code) . '*.jpg');
-                    if ($files && count($files) > 0) {
-                        $img = basename($files[0]);
-                    }
-                }
-            }
-
             $displayProducts[] = [
                 'source'       => $override ? 'modified' : 'builtin',
                 'db_id'        => $override ? $override->id : null,
@@ -55,20 +40,10 @@ class ProductApiController extends Controller
                 'dimensions'   => $override->dimensions  ?? $cp['dimensions'] ?? '',
                 'colors'       => $override ? $override->colors : ($cp['colors'] ?? []),
                 'catalog_id'   => $cp['id'],
-                'image'        => $img,
             ];
         }
 
         foreach ($dbAdditions as $dp) {
-             // Detect image for custom products
-            $img = 'placeholder.jpg';
-            if ($dp->code) {
-                $files = File::glob($imagePath . '/' . strtoupper($dp->code) . '*.jpg');
-                if ($files && count($files) > 0) {
-                    $img = basename($files[0]);
-                }
-            }
-
             $displayProducts[] = [
                 'source'       => 'custom',
                 'db_id'        => $dp->id,
@@ -82,10 +57,10 @@ class ProductApiController extends Controller
                 'dimensions'   => $dp->dimensions,
                 'colors'       => $dp->colors,
                 'catalog_id'   => null,
-                'image'        => $img,
             ];
         }
 
+        // Apply filters
         if ($filterCat) {
             $displayProducts = array_values(array_filter($displayProducts, fn($p) => $p['category_id'] === $filterCat));
         }
@@ -96,12 +71,31 @@ class ProductApiController extends Controller
             ));
         }
 
-        $categories = collect(config('catalog.categories'))->pluck('name', 'id')->toArray();
-
+        // Pagination
         $perPage = (int)$request->input('per_page', 24);
         $page = (int)$request->input('page', 1);
         $total = count($displayProducts);
         $pagedProducts = array_slice($displayProducts, ($page - 1) * $perPage, $perPage);
+
+        // Phase 2: Add expensive data (images) ONLY for the paged slice
+        $imagePath = public_path('static/images/products');
+        foreach ($pagedProducts as &$p) {
+            $img = 'placeholder.jpg';
+            if ($p['code']) {
+                $files = File::glob($imagePath . '/' . strtoupper($p['code']) . '*.jpg');
+                if ($files && count($files) > 0) {
+                    $img = basename($files[0]);
+                } else {
+                    $files = File::glob($imagePath . '/' . strtolower($p['code']) . '*.jpg');
+                    if ($files && count($files) > 0) {
+                        $img = basename($files[0]);
+                    }
+                }
+            }
+            $p['image'] = $img;
+        }
+
+        $categories = collect(config('catalog.categories'))->pluck('name', 'id')->toArray();
 
         return response()->json([
             'data'         => $pagedProducts,
@@ -110,6 +104,47 @@ class ProductApiController extends Controller
             'last_page'    => ceil($total / $perPage),
             'per_page'     => $perPage,
             'categories'   => $categories,
+        ]);
+    }
+
+    public function showCatalog($catalogId)
+    {
+        $catalogProducts = config('catalog.products');
+        $cp = collect($catalogProducts)->firstWhere('id', $catalogId);
+        
+        if (!$cp) {
+            return response()->json(['error' => 'Catalog item not found'], 404);
+        }
+
+        // Check for override
+        $override = Product::where('prod_id', $catalogId)->where('is_override', 1)->first();
+
+        $code = $override->code ?? $cp['code'] ?? '';
+        
+        // Find image
+        $img = 'placeholder.jpg';
+        $imagePath = public_path('static/images/products');
+        if ($code) {
+            $files = File::glob($imagePath . '/' . strtoupper($code) . '*.jpg');
+            if ($files && count($files) > 0) {
+                $img = basename($files[0]);
+            }
+        }
+
+        return response()->json([
+            'source'       => $override ? 'modified' : 'builtin',
+            'db_id'        => $override ? $override->id : null,
+            'code'         => $code,
+            'name'         => $override->name        ?? $cp['name'] ?? '',
+            'category_id'  => $override->category_id ?? $cp['category_id'] ?? '',
+            'price'        => $override->price       ?? $cp['price'] ?? 0,
+            'price_display'=> $override->price_display ?? $cp['price_display'] ?? '',
+            'is_poa'       => $override ? $override->is_poa : ($cp['is_poa'] ?? false),
+            'is_active'    => $override ? $override->is_active : true,
+            'dimensions'   => $override->dimensions  ?? $cp['dimensions'] ?? '',
+            'colors'       => $override ? $override->colors : ($cp['colors'] ?? []),
+            'catalog_id'   => $cp['id'],
+            'image'        => $img,
         ]);
     }
 

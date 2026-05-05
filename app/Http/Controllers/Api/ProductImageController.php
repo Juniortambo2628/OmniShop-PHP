@@ -46,6 +46,26 @@ class ProductImageController extends Controller
         ]);
     }
 
+    public function listByCode($code)
+    {
+        $code = strtoupper($code);
+        $imagePath = public_path('static/images/products');
+        
+        if (!File::isDirectory($imagePath)) {
+            return response()->json([]);
+        }
+
+        $files = File::glob($imagePath . '/' . $code . '*.jpg');
+        $images = array_map(function ($f) {
+            return [
+                'name' => basename($f),
+                'url' => '/static/images/products/' . basename($f)
+            ];
+        }, $files);
+
+        return response()->json($images);
+    }
+
     public function delete(Request $request)
     {
         $fileName = $request->input('file_name');
