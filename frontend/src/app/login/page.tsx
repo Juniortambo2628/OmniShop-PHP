@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -77,6 +78,12 @@ export default function LoginPage() {
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
+        
+        <div className="mt-8 pt-6 border-t border-gray-100">
+           <Link href="/" className="text-xs font-bold text-gray-400 hover:text-teal-600 transition-colors uppercase tracking-widest">
+              ← Return to Storefront
+           </Link>
+        </div>
       </div>
     </div>
   );

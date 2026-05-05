@@ -7,8 +7,10 @@ import Hero from '@/components/catalog/Hero';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Filter, Search, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PublicLandingPage() {
+  const { token } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('');
@@ -86,8 +88,11 @@ export default function PublicLandingPage() {
   return (
     <>
       <div className="absolute top-0 right-0 p-6 z-50">
-         <Link href="/admin" className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all shadow-lg">
-            Admin Login
+         <Link 
+            href={token ? "/admin" : "/admin/login"} 
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase transition-all shadow-lg hover:scale-105 active:scale-95"
+         >
+            {token ? "Dashboard" : "Admin Login"}
          </Link>
       </div>
 

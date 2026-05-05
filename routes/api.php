@@ -35,7 +35,7 @@ Route::get('/maintenance/run', [MaintenanceController::class, 'run']);
 
 // Public catalog routes
 Route::post('/catalog/{event}/login', [PublicCatalogController::class, 'login']);
-Route::get('/catalog/{event}/data', [PublicCatalogController::class, 'data']);
+Route::get('/catalog/{event}/data', [PublicCatalogController::class, 'getData']);
 Route::post('/catalog/{event}/checkout', [PublicCatalogController::class, 'checkout']);
 Route::get('/storefront/settings', [StorefrontCmsController::class, 'index']); // Public access to CMS settings
 Route::post('/promo-codes/validate', [PromoCodeController::class, 'validateCode']);

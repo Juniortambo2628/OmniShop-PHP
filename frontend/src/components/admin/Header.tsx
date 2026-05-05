@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface SearchResult {
   type: string;
@@ -162,7 +163,13 @@ export default function Header() {
       </div>
 
       {/* Right side: Notifications + Profile */}
-      <div className="flex items-center gap-3 ml-6">
+      <div className="flex items-center gap-6 ml-6">
+        <Link 
+          href="/" 
+          className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-teal-600 transition-colors"
+        >
+          View Site
+        </Link>
         {/* Notifications */}
         <div ref={notifRef} className="relative">
           <button
