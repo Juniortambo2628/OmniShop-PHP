@@ -14,6 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            ProductSeeder::class,
+            AdminAndEventsSeeder::class,
+        ]);
+
         // Admin User
         User::updateOrCreate(
             ['email' => 'admin@omnispace3d.com'],
