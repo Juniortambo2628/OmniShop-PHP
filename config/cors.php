@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    'allowed_origins' => array_filter([
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        env('FRONTEND_URL'),
+        env('FRONTEND_URL') ? str_replace('https://', 'https://www.', env('FRONTEND_URL')) : null,
+    ]),
 
     'allowed_origins_patterns' => [],
 

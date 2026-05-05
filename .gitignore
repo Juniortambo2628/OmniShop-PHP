@@ -23,6 +23,13 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+# cPanel
+.cpanel-cache/
+.softaculous/
+
+# Legacy
+legacy/
+
 # Frontend
 frontend/.env
 frontend/.env.local
