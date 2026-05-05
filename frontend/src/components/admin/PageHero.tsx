@@ -28,7 +28,7 @@ export default function PageHero({
   ];
 
   return (
-    <div className="sticky top-0 z-40 bg-gray-50/80 backdrop-blur-md px-6 py-4">
+    <div className="sticky top-16 z-30 bg-gray-50/80 backdrop-blur-md px-6 py-4">
       <div className="bg-teal-600 rounded-[32px] p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-teal-900/20 border border-teal-500 overflow-hidden relative group">
         <div className="relative z-10 flex-1">
           {/* Breadcrumbs inside the card for a more integrated feel */}

@@ -121,7 +121,7 @@ export default function Header() {
     return () => clearTimeout(timer);
   }, [searchQuery, token]);
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
+    <header className="sticky top-0 z-50 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
       {/* Search */}
       <div ref={searchRef} className="relative flex-1 max-w-lg">
         <div className="relative">
