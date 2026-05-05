@@ -452,7 +452,7 @@ export default function ProductsPage() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         title={activeProductId ? 'Edit Product' : 'Add Product'}
-        size="2xl"
+        size="5xl"
       >
         <ProductForm 
           productId={activeProductId} 

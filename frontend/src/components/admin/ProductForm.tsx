@@ -104,9 +104,10 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
             is_override: product.is_override,
           });
         } else if (fromCatalogId) {
-          // Get all products to find the catalog one to prefill
-          const { products } = await apiFetch<{ products: any[] }>('/products', { token });
-          const catProduct = products.find(p => p.catalog_id === fromCatalogId && p.source === 'builtin');
+          // Get products to find the catalog one to prefill
+          const res = await apiFetch<any>('/products', { token });
+          const products = res.data || [];
+          const catProduct = products.find((p: any) => p.catalog_id === fromCatalogId && p.source === 'builtin');
           if (catProduct) {
              setFormData(prev => ({
                ...prev,
@@ -202,7 +203,7 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
         </PageHero>
       )}
 
-      <div className={`${isModal ? 'p-0' : 'p-6 max-w-4xl mx-auto w-full'}`}>
+      <div className={`${isModal ? 'p-0' : 'p-6 max-w-6xl mx-auto w-full'}`}>
         <form onSubmit={handleSubmit} className={`${isModal ? '' : 'bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'}`}>
           {!isModal && (
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -221,174 +222,190 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
             </div>
           )}
           
-          <div className="p-6 space-y-6">
-            {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">{error}</div>}
+          <div className="p-6">
+            {error && <div className="mb-6 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">{error}</div>}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Product ID (Internal)</label>
-                <input 
-                  type="text" 
-                  name="prod_id" 
-                  value={formData.prod_id} 
-                  onChange={handleChange}
-                  readOnly={isEdit || formData.is_override}
-                  className={`w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500 ${(isEdit || formData.is_override) ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
-                  required
-                />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              
+              {/* MAIN FORM COLUMN */}
+              <div className="lg:col-span-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Product ID (Internal)</label>
+                    <input 
+                      type="text" 
+                      name="prod_id" 
+                      value={formData.prod_id} 
+                      onChange={handleChange}
+                      readOnly={isEdit || formData.is_override}
+                      className={`w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500 ${(isEdit || formData.is_override) ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Product Code (Display)</label>
+                    <input 
+                      type="text" 
+                      name="code" 
+                      value={formData.code} 
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Product Name</label>
+                  <input 
+                    type="text" 
+                    name="name" 
+                    value={formData.name} 
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
+                    <select 
+                      name="category_id" 
+                      value={formData.category_id} 
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500 bg-white"
+                      required
+                    >
+                      <option value="">-- Select Category --</option>
+                      {Object.entries(categories).map(([id, name]) => (
+                        <option key={id} value={id}>{name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dimensions / Specifications</label>
+                    <input 
+                      type="text" 
+                      name="dimensions" 
+                      value={formData.dimensions} 
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Price (Numeric)</label>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      name="price" 
+                      value={formData.price} 
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                      <span>Price Display String</span>
+                      <span className="text-[10px] text-gray-400 normal-case font-normal">e.g., "$150" or "POA"</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      name="price_display" 
+                      value={formData.price_display} 
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>Colours (Comma separated)</span>
+                    <span className="text-[10px] text-gray-400 normal-case font-normal">e.g., White, Black, Red</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="colors" 
+                    value={formData.colors} 
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+                    placeholder="Leave blank if not applicable"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-8 pt-4 border-t border-gray-100">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      name="is_active" 
+                      checked={formData.is_active} 
+                      onChange={handleChange}
+                      className="w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Active (Visible on Storefront)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      name="is_poa" 
+                      checked={formData.is_poa} 
+                      onChange={handleChange}
+                      className="w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Price on Application (POA)</span>
+                  </label>
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Product Code (Display)</label>
-                <input 
-                  type="text" 
-                  name="code" 
-                  value={formData.code} 
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
-                  required
-                />
+
+              {/* SIDEBAR COLUMN (IMAGES) */}
+              <div className="lg:col-span-4 space-y-6">
+                 <div className="bg-gray-50/50 rounded-2xl border border-gray-100 p-6">
+                   <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Product Assets</label>
+                   <FilePond
+                      files={files}
+                      onupdatefiles={setFiles}
+                      allowMultiple={true}
+                      maxFiles={5}
+                      server={{
+                        process: {
+                          url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${token}`
+                          },
+                          ondata: (fd) => {
+                            fd.append('product_code', formData.code);
+                            return fd;
+                          }
+                        },
+                        revert: {
+                          url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
+                          headers: {
+                            'Authorization': `Bearer ${token}`
+                          }
+                        }
+                      }}
+                      name="image"
+                      labelIdle='Drag & Drop images or <span class="filepond--label-action">Browse</span>'
+                      acceptedFileTypes={['image/*']}
+                      className="filepond-compact"
+                   />
+                   <div className="mt-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                     <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
+                       <strong className="text-gray-900 block mb-1">Naming Convention:</strong>
+                       • Use <strong>CODE.jpg</strong> for primary.<br/>
+                       • Use <strong>CODE-COLORID.jpg</strong> for variants.
+                     </p>
+                   </div>
+                 </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Product Name</label>
-              <input 
-                type="text" 
-                name="name" 
-                value={formData.name} 
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
-              <select 
-                name="category_id" 
-                value={formData.category_id} 
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500 bg-white"
-                required
-              >
-                <option value="">-- Select Category --</option>
-                {Object.entries(categories).map(([id, name]) => (
-                  <option key={id} value={id}>{name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Price (Numeric)</label>
-                <input 
-                  type="number" 
-                  step="0.01"
-                  name="price" 
-                  value={formData.price} 
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                  <span>Price Display String</span>
-                  <span className="text-[10px] text-gray-400 normal-case font-normal">e.g., "$150" or "POA"</span>
-                </label>
-                <input 
-                  type="text" 
-                  name="price_display" 
-                  value={formData.price_display} 
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dimensions / Specifications</label>
-              <input 
-                type="text" 
-                name="dimensions" 
-                value={formData.dimensions} 
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                <span>Colours (Comma separated)</span>
-                <span className="text-[10px] text-gray-400 normal-case font-normal">e.g., White, Black, Red</span>
-              </label>
-              <input 
-                type="text" 
-                name="colors" 
-                value={formData.colors} 
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
-                placeholder="Leave blank if not applicable"
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-8 pt-4 border-t border-gray-100">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  name="is_active" 
-                  checked={formData.is_active} 
-                  onChange={handleChange}
-                  className="w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">Active (Visible on Storefront)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  name="is_poa" 
-                  checked={formData.is_poa} 
-                  onChange={handleChange}
-                  className="w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">Price on Application (POA)</span>
-              </label>
-            </div>
-
-            <div className="pt-6 border-t border-gray-100">
-               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Product Images (FilePond)</label>
-               <FilePond
-                  files={files}
-                  onupdatefiles={setFiles}
-                  allowMultiple={true}
-                  maxFiles={5}
-                  server={{
-                    process: {
-                      url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
-                      method: 'POST',
-                      headers: {
-                        'Authorization': `Bearer ${token}`
-                      },
-                      ondata: (fd) => {
-                        fd.append('product_code', formData.code);
-                        return fd;
-                      }
-                    },
-                    revert: {
-                      url: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/products/images`,
-                      headers: {
-                        'Authorization': `Bearer ${token}`
-                      }
-                    }
-                  }}
-                  name="image"
-                  labelIdle='Drag & Drop your images or <span class="filepond--label-action">Browse</span>'
-                  acceptedFileTypes={['image/*']}
-               />
-               <p className="mt-2 text-[10px] text-gray-400">
-                 Images should be named as <strong>CODE.jpg</strong> for the default image or <strong>CODE-COLORID.jpg</strong> for color variants.
-               </p>
             </div>
           </div>
           
@@ -396,14 +413,14 @@ export default function ProductForm({ productId, fromCatalogId, onSuccess, isMod
             <button 
               type="button" 
               onClick={() => onSuccess ? onSuccess() : router.push('/admin/products')}
-              className="px-5 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-6 py-2.5 text-xs font-black uppercase tracking-widest text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
             >
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={saving}
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
+              className="px-8 py-2.5 text-xs font-black uppercase tracking-widest text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 disabled:opacity-50"
             >
               {saving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Product')}
             </button>
