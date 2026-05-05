@@ -12,6 +12,7 @@ use App\Models\Event;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class PublicCatalogController extends Controller
 {
@@ -73,13 +74,31 @@ class PublicCatalogController extends Controller
         $grouped = collect($products)->groupBy('category');
         $categories = $grouped->keys()->toArray();
 
+        // Build image mapping from filesystem
+        $images = [];
+        $imagePath = public_path('static/images/products');
+        if (File::isDirectory($imagePath)) {
+            $files = File::files($imagePath);
+            foreach ($files as $file) {
+                $filename = $file->getFilename();
+                // Expected format: CODE-COLOR.jpg or CODE.jpg
+                if (preg_match('/^([^-.]+)(?:-([^-.]+))?\.(?:jpg|jpeg|png|webp)$/i', $filename, $matches)) {
+                    $code = strtoupper($matches[1]);
+                    $color = isset($matches[2]) ? $matches[2] : 'default';
+                    
+                    if (!isset($images[$code])) $images[$code] = [];
+                    $images[$code][$color] = $filename;
+                }
+            }
+        }
+
         return response()->json([
             'event' => $event,
             'products' => $products,
             'grouped' => $grouped,
             'categories' => $categories,
             'settings' => $settings,
-            'images' => [], // Placeholder for gallery images
+            'images' => $images,
         ]);
     }
 
