@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Admin\StorefrontCmsController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\Api\InvoiceApiController;
+use App\Http\Controllers\Api\MaintenanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,7 @@ use App\Http\Controllers\Api\InvoiceApiController;
 use App\Http\Controllers\Api\ProductImageController;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/maintenance/run', [MaintenanceController::class, 'run']);
 
 // Public catalog routes
 Route::post('/catalog/{event}/login', [PublicCatalogController::class, 'login']);
